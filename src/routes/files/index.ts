@@ -1,7 +1,7 @@
 import { resolve } from 'path';
 import { readdir } from 'fs/promises';
 
-const FILES_PATH = '/run/media/unl/UNL.STORE/eighteen+';
+import env from '../../constants/env';
 
 
 async function walkFiles(dir: string, cb: (filePath: string) => void, parent) {
@@ -39,7 +39,7 @@ async function getFilesList(dir: string): string[] {
 export async function get() {
 	// IMPROVEME: FIX SECUTITY ISSUE: access to any folder by path
 	// IMPROVEME: what if we get a lot of files here? :-/
-	const files = await getFilesList(FILES_PATH);
+	const files = await getFilesList(env.MEDIA_ROOT);
 
 	return {
 		body: files,
