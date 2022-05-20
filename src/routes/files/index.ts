@@ -1,7 +1,7 @@
 import { resolve } from 'path';
 import { readdir } from 'fs/promises';
 
-import env from '../../constants/env';
+import env from '$constants/env';
 
 
 async function walkFiles(dir: string, cb: (filePath: string) => void, parent) {
