@@ -1,6 +1,7 @@
 <main>
 	<div class="upload-zone">
 		<FileDrop on:filedrop={acceptFiles}>
+			<button>click to upload</button>
 			{#if files}
 			{#each files.accepted as file}
 				<li>{file.name} - {file.size}</li>
@@ -12,6 +13,10 @@
 				<img src={fileDataURL}  class="image-preview" />
 			{/each}
 			{/if}
+
+			{#if uploadResult}
+				<pre>{JSON.stringify(uploadResult, undefined, 4)}</pre>
+			{/if}
 		</FileDrop>
 	</div>
 </main>
@@ -21,22 +26,29 @@
 	import type { FileDropSelectEvent } from "filedrop-svelte";
 	import type { Files } from "filedrop-svelte";
 
-	import { readFileAsDataURL } from '$utils/file-utils';
+	import { readFileAsDataURL, uploadFiles } from '$utils/file-utils';
 
 	let files: Files;
 	let filesData: string[];
+	let uploadResult: any;
 
 	function acceptFiles(e: CustomEvent<FileDropSelectEvent>) {
 		files = e.detail.files;
-		// TODO: add function for file upload
+		if (!files.accepted.length) return;
 
-		Promise.all<string>(
-			files.accepted.map(
-				file => readFileAsDataURL(file)
-			)
-		).then(dataUrls => {
-			filesData = dataUrls;
-		})
+		uploadFiles(files.accepted)
+			.then(response => response.json())
+			.then(result => {
+				uploadResult = result;
+			});
+
+		// Promise.all<string>(
+		// 	files.accepted.map(
+		// 		file => readFileAsDataURL(file)
+		// 	)
+		// ).then(dataUrls => {
+		// 	filesData = dataUrls;
+		// })
 	}
 </script>
 
