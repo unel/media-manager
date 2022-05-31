@@ -1,6 +1,7 @@
 <main>
 	<div class="upload-zone">
 		<FileDrop on:filedrop={acceptFiles}>
+			<button>click to upload</button>
 			{#if files}
 			{#each files.accepted as file}
 				<li>{file.name} - {file.size}</li>
