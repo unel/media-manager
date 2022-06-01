@@ -11,12 +11,15 @@
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
     "lint": "prettier --ignore-path .gitignore --check --plugin-search-dir=. . && eslint --ignore-path .gitignore .",
-    "format": "prettier --ignore-path .gitignore --write --plugin-search-dir=. ."
+    "format": "prettier --ignore-path .gitignore --write --plugin-search-dir=. .",
+    "m:watch": "esrun src/scripts/watcher"
   },
   "devDependencies": {
+    "@digitak/esrun": "^3.2.6",
     "@playwright/test": "^1.21.0",
     "@sveltejs/adapter-auto": "next",
     "@sveltejs/kit": "next",
+    "@types/node": "^17.0.38",
     "@typescript-eslint/eslint-plugin": "^5.10.1",
     "@typescript-eslint/parser": "^5.10.1",
     "eslint": "^8.12.0",
@@ -27,11 +30,13 @@
     "svelte": "^3.44.0",
     "svelte-check": "^2.2.6",
     "svelte-preprocess": "^4.10.1",
-    "tslib": "^2.3.1",
+    "tslib": "^2.4.0",
     "typescript": "~4.7.2"
   },
   "type": "module",
+  "typesVersions": {},
   "dependencies": {
+    "dotenv": "^16.0.1",
     "filedrop-svelte": "^0.1.2"
   }
 }
