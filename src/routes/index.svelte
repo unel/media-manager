@@ -12,6 +12,7 @@
 </script>
 
 <script lang="ts">
+	import { pickRandomElements } from '$utils/array-utils';
 	import Media from '../components/media.svelte';
 	export let data: string[];
 
@@ -39,23 +40,13 @@
 
 	function filter(data: string[], dataLimit: number, pathRe: string, seed: number): string[] {
 		const re = new RegExp(pathRe || '.*');
-		const copy = data.slice();
-		if (seed) {
-			shuffle(copy);
-		}
+		const filterFn = (filePath: string) => re.test(filePath);
 
-		return copy.filter((f: string) => re.test(f)).slice(0, dataLimit);
+		return pickRandomElements(data.filter(filterFn), dataLimit);
 	}
 
 	function applyPathFilter(e: any) {
 		pathRe = e.target.value;
-	}
-
-	function shuffle(array: any[]): void {
-		for (let i = array.length - 1; i > 0; i--) {
-			let j = Math.floor(Math.random() * (i + 1));
-			[array[i], array[j]] = [array[j], array[i]];
-		}
 	}
 
 	function changeShuffleSeed() {
