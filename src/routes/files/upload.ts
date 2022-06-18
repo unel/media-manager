@@ -1,11 +1,15 @@
-import { resolve } from 'path';
+import { resolve, extname } from 'path';
 import { stat, writeFile } from 'fs/promises';
 
 import env from '$constants/env';
+import { computeFileHash } from '$utils/file-utils';
 
 
 async function writeFileToUploads(file: File) {
-	const path = resolve(env.UPLOAD_ROOT, file.name);
+	const hash = await computeFileHash(file, 'sha-1');
+	const path = resolve(env.UPLOAD_ROOT, `${hash}${extname(file.name)}`);
+
+	console.log('file', file.name, 'path', path);
 
 	try {
 		const fileStat = await stat(path);
