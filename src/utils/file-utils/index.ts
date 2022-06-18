@@ -1,5 +1,5 @@
 type TReadingMethods = 'readAsText' | 'readAsDataURL' | 'readAsBinaryString' | 'readAsArrayBuffer';
-export async function readFile(file: File, method : TReadingMethods= 'readAsText'): Promise<string | ArrayBuffer | null> {
+export async function readFile(file: File, method: TReadingMethods = 'readAsText'): Promise<string | ArrayBuffer | null> {
 	return new Promise((resolve, reject) => {
 		const reader = new FileReader();
 
@@ -17,6 +17,42 @@ export async function readFileAsDataURL(file: File): Promise<string> {
 	}
 
 	return result;
+}
+
+const kilobyte = 1024;
+const megabyte = 1024 * kilobyte;
+
+export function walkFileChunks(file: File, chunkSize: number = (2 * megabyte), cb: (error: Error | null, data: ArrayBuffer | null) => void) {
+	const blobSlice = File.prototype.slice;
+	const chunksAmount = Math.ceil(file.size / chunkSize);
+	const fileReader = new FileReader();
+
+	let currentChunk = 0;
+
+	fileReader.onload = (e) => {
+		cb(null, e.target?.result);
+		currentChunk++;
+
+		if (currentChunk < chunksAmount) {
+			loadNext();
+		} else {
+			cb(null, null);
+			return;
+		}
+	};
+
+	fileReader.onerror = function (e) {
+		cb(new Error(e.message), null);
+	};
+
+	const loadNext = () => {
+		const start = currentChunk * chunkSize;
+		const end = ((start + chunkSize) >= file.size) ? file.size : start + chunkSize;
+
+		fileReader.readAsBinaryString(blobSlice.call(file, start, end));
+	};
+
+	loadNext();
 }
 
 
