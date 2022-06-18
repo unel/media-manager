@@ -56,6 +56,22 @@ export function walkFileChunks(file: File, chunkSize: number = (2 * megabyte), c
 }
 
 
+function byte2hexstr(byte: number) {
+	return byte.toString(16).padStart(2, '0');
+}
+
+export async function computeFileHash(file: File, type: string = 'sha-1') {
+	const algorithm = type.toUpperCase();
+	const buffer = await file.arrayBuffer();
+	const digest = await crypto.subtle.digest(algorithm, buffer);
+
+	return Array.from(new Uint8Array(digest))
+		.map(
+			(byte: number) => byte2hexstr(byte)
+		)
+		.join('');
+}
+
 export function uploadFiles(files: File[]) {
 	const data = new FormData();
 
