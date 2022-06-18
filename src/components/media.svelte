@@ -1,5 +1,5 @@
 <script lang="ts">
-	export let path: string;
+	export let path: string = '';
 	export let width: string = '';
 	export let height: string = '';
 
