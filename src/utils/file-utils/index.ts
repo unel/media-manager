@@ -1,5 +1,11 @@
+import { extname, resolve } from 'path';
+import { stat, open, readFile, writeFile } from 'fs/promises';
+
+import env from '$constants/env';
+
+
 type TReadingMethods = 'readAsText' | 'readAsDataURL' | 'readAsBinaryString' | 'readAsArrayBuffer';
-export async function readFile(file: File, method: TReadingMethods = 'readAsText'): Promise<string | ArrayBuffer | null> {
+export async function readFileContent(file: File, method: TReadingMethods = 'readAsText'): Promise<string | ArrayBuffer | null> {
 	return new Promise((resolve, reject) => {
 		const reader = new FileReader();
 
@@ -11,7 +17,7 @@ export async function readFile(file: File, method: TReadingMethods = 'readAsText
 }
 
 export async function readFileAsDataURL(file: File): Promise<string> {
-	const result = await readFile(file, 'readAsDataURL');
+	const result = await readFileContent(file, 'readAsDataURL');
 	if (typeof result !== 'string') {
 		return '';
 	}
@@ -60,9 +66,12 @@ function byte2hexstr(byte: number) {
 	return byte.toString(16).padStart(2, '0');
 }
 
-export async function computeFileHash(file: File, type: string = 'sha-1') {
+export async function computeFileHash(file: File | string, type: string = 'sha-1') {
 	const algorithm = type.toUpperCase();
-	const buffer = await file.arrayBuffer();
+	const buffer = typeof file === 'string'
+		? await readFile(file)
+		: await file.arrayBuffer();
+
 	const digest = await crypto.subtle.digest(algorithm, buffer);
 
 	return Array.from(new Uint8Array(digest))
@@ -72,15 +81,59 @@ export async function computeFileHash(file: File, type: string = 'sha-1') {
 		.join('');
 }
 
-export function uploadFiles(files: File[]) {
-	const data = new FormData();
+export async function generateBaseMetainfoForFile(file: File): Promise<Object> {
+	const sha1 = await computeFileHash(file, 'sha-1');
 
-	for (const [index, file] of Object.entries(files)) {
-		data.append(`file-${index}`, file, file.name);
+	return {
+		"file-name": file.name,
+		"hashes": {
+			"sha-1": sha1,
+		},
+		"tags": [],
+	};
+}
+
+export async function getMetaPath(file: File | string) {
+	const hash = await computeFileHash(file, 'sha-1');
+
+	return resolve(env.INFO_ROOT, `${hash}.json`);
+}
+
+export async function getUploadPath(file: File) {
+	const hash = await computeFileHash(file, 'sha-1');
+	const ext = extname(file.name);
+
+	return resolve(env.UPLOAD_ROOT, `${hash}${ext}`);
+}
+
+export async function updateMetaForFile(file: File, meta: Object) {
+	const metaPath = await getMetaPath(file);
+	const prevInfo = await getFileMeta(file);
+	const nextInfo = {
+		...prevInfo,
+		...meta,
+		"tags": Array.from(new Set([...(prevInfo.tags || []), ...(meta.tags || [])])),
+		"update-meta-datetime": Date.now(),
+	};
+
+	writeFile(metaPath, JSON.stringify(nextInfo, undefined, 4));
+
+	return nextInfo;
+}
+
+export async function getFileMeta(file: File | string): Promise<Object> {
+	const metaPath = await getMetaPath(file);
+	const isMetaFileExists = await isFileExists(metaPath);
+
+	return isMetaFileExists ? JSON.parse(await readFile(metaPath)) : await generateBaseMetainfoForFile(file);
+}
+
+export async function isFileExists(path: string): Promise<boolean> {
+	try {
+		const fileStat = await stat(path);
+		return true;
+
+	} catch {
+		return false;
 	}
-
-	return fetch('/files/upload', {
-		method: 'POST',
-		body: data,
-	});
 }

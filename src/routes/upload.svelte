@@ -26,7 +26,7 @@
 	import type { FileDropSelectEvent } from "filedrop-svelte";
 	import type { Files } from "filedrop-svelte";
 
-	import { readFileAsDataURL, uploadFiles } from '$utils/file-utils';
+	import { uploadFiles } from '$utils/file-utils/upload-files';
 
 	let files: Files;
 	let filesData: string[];

@@ -12,25 +12,29 @@
 </script>
 
 <script lang="ts">
+	type TFileData = {
+		path: string,
+		meta: Object,
+	}
 	import { pickRandomElements } from '$utils/array-utils';
 	import Media from '../components/media.svelte';
-	export let data: string[];
+	export let data: TFileData[];
 
 	let dataLimit = 10;
 	let pathRe = '.jpg$';
 	let seed = Math.random();
 	let previewSize = 27;
 
-	$: types = [...new Set(data.map((f: string) => getFileExtension(f)))];
+	$: types = [...new Set(data.map((d: TFileData) => getFileExtension(d.path)))];
 	$: filteredData = filter(data, dataLimit, pathRe, seed);
 
-	let selectedFile: string | undefined = data[0];
+	let selectedFile: TFileData | undefined = data[0];
 
 	function getFileExtension(path: string): string {
 		return path.slice(((path.lastIndexOf('.') - 1) >>> 0) + 2);
 	}
 
-	function selectFile(newSelectedFile: string) {
+	function selectFile(newSelectedFile: TFileData) {
 		selectedFile = newSelectedFile;
 	}
 
@@ -38,9 +42,9 @@
 		// selectedFile = undefined;
 	}
 
-	function filter(data: string[], dataLimit: number, pathRe: string, seed: number): string[] {
+	function filter(data: TFileData[], dataLimit: number, pathRe: string, seed: number): TFileData[] {
 		const re = new RegExp(pathRe || '.*');
-		const filterFn = (filePath: string) => re.test(filePath);
+		const filterFn = (data: TFileData) => re.test(data.path);
 
 		return pickRandomElements(data.filter(filterFn), dataLimit);
 	}
@@ -77,22 +81,22 @@
 
 		<section class="viewbox {selectedFile ? 'viewbox-visible' : ''}">
 			{#if selectedFile}
-				<a href="/files/{encodeURIComponent(selectedFile)}">
-					<Media path={selectedFile} height="100%" />
+				<a href="/files/{encodeURIComponent(selectedFile.path)}">
+					<Media path={selectedFile.path} height="100%" />
 				</a>
 			{/if}
 		</section>
 
 		{#if data}
 			<section class="media-list">
-				{#each filteredData as file}
+				{#each filteredData as fileData}
 					<span
 						on:mouseenter={(e) => {
-							selectFile(file);
+							selectFile(fileData);
 						}}
 						on:mouseleave={clearFile}
 					>
-						<Media path={file} width="100%" />
+						<Media path={fileData.path} width="100%" />
 					</span>
 				{/each}
 			</section>

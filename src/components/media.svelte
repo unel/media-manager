@@ -3,7 +3,7 @@
 	export let width: string = '';
 	export let height: string = '';
 
-	function getFileExtension(path: string): string {
+	function getFileExtension(path: string = ''): string {
 		return path.slice(((path.lastIndexOf('.') - 1) >>> 0) + 2);
 	}
 

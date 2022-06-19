@@ -2,6 +2,7 @@ import { resolve } from 'path';
 import { readdir } from 'fs/promises';
 
 import env from '$constants/env';
+import { getFileMeta } from '$utils/file-utils';
 
 
 async function walkFiles(dir: string, cb: (filePath: string) => void, parent) {
@@ -23,15 +24,25 @@ async function walkFiles(dir: string, cb: (filePath: string) => void, parent) {
 
 async function getFilesList(dir: string): string[] {
 	// IMPROVEME: revrite to generators (but not async!)
-	const list = [];
+	const paths = [];
+	const metaPromises = [];
 
 	return new Promise(resolve => {
 		walkFiles(dir, filePath => {
 			if (filePath === null) {
-				return resolve(list);
+				return Promise.all(metaPromises)
+					.then(metas => {
+						const result = paths.map((path, index) => ({
+							path,
+							meta: metas[index],
+						}));
+
+						return resolve(result);
+					});
 			}
 
-			list.push(filePath);
+			paths.push(filePath);
+			// metaPromises.push(getFileMeta(filePath));
 		});
 	});
 }
