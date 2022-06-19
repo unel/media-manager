@@ -16,7 +16,7 @@
 		path: string,
 		meta: Object,
 	}
-	import { pickRandomElements } from '$utils/array-utils';
+	import { pickRandomElement, pickRandomElements } from '$utils/array-utils';
 	import Media from '../components/media.svelte';
 	export let data: TFileData[];
 
@@ -28,7 +28,7 @@
 	$: types = [...new Set(data.map((d: TFileData) => getFileExtension(d.path)))];
 	$: filteredData = filter(data, dataLimit, pathRe, seed);
 
-	let selectedFile: TFileData | undefined = data[0];
+	let selectedFile: TFileData | undefined = pickRandomElement(data);
 
 	function getFileExtension(path: string): string {
 		return path.slice(((path.lastIndexOf('.') - 1) >>> 0) + 2);
