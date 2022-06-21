@@ -16,17 +16,19 @@
 		path: string,
 		meta: Object,
 	}
+
 	import { pickRandomElement, pickRandomElements } from '$utils/array-utils';
+	import { createPersistantStore } from '$src/stores/proxy-store';
 	import Media from '../components/media.svelte';
 	export let data: TFileData[];
 
-	let dataLimit = 10;
-	let pathRe = '.jpg$';
 	let seed = Math.random();
-	let previewSize = 27;
+	const pathRe = createPersistantStore('settings.pathRe', '.jpg$');
+	const previewSize = createPersistantStore('settings.ps', 27);
+	const dataLimit = createPersistantStore('settings.dataLimit', 10);
 
 	$: types = [...new Set(data.map((d: TFileData) => getFileExtension(d.path)))];
-	$: filteredData = filter(data, dataLimit, pathRe, seed);
+	$: filteredData = filter(data, $dataLimit, $pathRe, seed);
 
 	let selectedFile: TFileData | undefined = pickRandomElement(data);
 
@@ -50,7 +52,7 @@
 	}
 
 	function applyPathFilter(e: any) {
-		pathRe = e.target.value;
+		pathRe.set(e.target.value);
 	}
 
 	function changeShuffleSeed() {
@@ -62,11 +64,11 @@
 	<title>hello dude</title>
 </svelte:head>
 <main>
-	<section class="grid" style="grid-template-columns: {previewSize}% {100 - previewSize}%;">
+	<section class="grid" style="grid-template-columns: {$previewSize}% {100 - $previewSize}%;">
 		<section class="filter">
 			<h1>total files: {data.length}</h1>
-			<input name="re" type="text" bind:value={pathRe} />
-			<input name="limit" type="number" bind:value={dataLimit} min="0" max={data.length} />
+			<input name="re" type="text" bind:value={$pathRe} />
+			<input name="limit" type="number" bind:value={$dataLimit} min="0" max={data.length} />
 			<select on:change={applyPathFilter}>
 				<option value=".*">any</option>
 				{#each types as fileType}
@@ -76,7 +78,7 @@
 			<button on:click={changeShuffleSeed}>shuffle</button>
 
 			<hr />
-			<input type="range" min={10} max={100} bind:value={previewSize} />
+			<input type="range" min={10} max={100} bind:value={$previewSize} />
 		</section>
 
 		<section class="viewbox {selectedFile ? 'viewbox-visible' : ''}">

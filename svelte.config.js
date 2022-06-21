@@ -17,6 +17,8 @@ const config = {
 					'$src': path.resolve('./src'),
 					'$constants': path.resolve('./src/constants'),
 					'$utils': path.resolve('./src/utils'),
+					'$stores': path.resolve('./src/stores'),
+					'$storages': path.resolve('./src/storages'),
 				}
 			}
 		}

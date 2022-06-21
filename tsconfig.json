@@ -17,6 +17,8 @@
 			"$src/*": ["src/*"],
 			"$constants/*": ["src/constants/*"],
 			"$utils/*": ["src/utils/*"],
+			"$stores/*": ["src/stores/*"],
+			"$storages/*": ["src/storages/*"]
 		}
 	}
 }
