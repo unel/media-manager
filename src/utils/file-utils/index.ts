@@ -74,17 +74,28 @@ export async function generateBaseMetainfoForFile(file: File): Promise<Object> {
 	};
 }
 
-export async function getMetaPath(file: File | string) {
+export async function getMetaFileName(file: File | string): Promise<string> {
 	const hash = await computeFileHash(file, 'sha-1');
-
-	return resolve(env.INFO_ROOT, `${hash}.json`);
+	return `${hash}.json`;
 }
 
-export async function getUploadPath(file: File) {
+export async function getNormalisedFileName(file: File | string): Promise<string> {
 	const hash = await computeFileHash(file, 'sha-1');
 	const ext = extname(file.name);
 
-	return resolve(env.UPLOAD_ROOT, `${hash}${ext}`);
+	return `${hash}${ext}`;
+}
+
+export async function getMetaPath(file: File | string): Promise<string> {
+	return resolve(env.INFO_ROOT, getMetaFileName(file));
+}
+
+export async function getUploadPath(file: File | string): Promise<string> {
+	return resolve(env.UPLOAD_ROOT, getNormalisedFileName(file));
+}
+
+export async function getStorePath(file: File | string): Promise<string> {
+	return resolve(env.STORE_ROOT, getNormalisedFileName(file));
 }
 
 export async function updateMetaForFile(file: File, meta: Object) {
