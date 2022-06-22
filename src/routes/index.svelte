@@ -46,7 +46,7 @@
 
 	function filter(data: TFileData[], dataLimit: number, pathRe: string, seed: number): TFileData[] {
 		const re = new RegExp(pathRe || '.*');
-		const filterFn = (data: TFileData) => re.test(data.path);
+		const filterFn = (data: TFileData) => data.path && re.test(data.path);
 
 		return pickRandomElements(data.filter(filterFn), dataLimit);
 	}
@@ -89,7 +89,7 @@
 			{/if}
 		</section>
 
-		{#if data}
+		{#if filteredData?.length}
 			<section class="media-list">
 				{#each filteredData as fileData}
 					<span
@@ -98,7 +98,9 @@
 						}}
 						on:mouseleave={clearFile}
 					>
-						<Media path={fileData.path} width="100%" />
+						{#if fileData?.path}
+							<Media path={fileData.path} width="100%" />
+						{/if}
 					</span>
 				{/each}
 			</section>
