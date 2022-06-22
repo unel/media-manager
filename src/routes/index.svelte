@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
 	export async function load({ fetch }: any) {
-		const response = await fetch(`/files`);
+		const response = await fetch(`/api/files`);
 		const data = await response.json();
 
 		return {

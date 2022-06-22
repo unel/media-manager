@@ -1,5 +1,5 @@
 
-function createInmemoryStorage() {
+export function createInmemoryStorage() {
 	const MEM = {};
 
 	return {
@@ -12,7 +12,15 @@ function createInmemoryStorage() {
 
 		setItem(key, value) {
 			MEM[key] = value;
-		}
+		},
+
+		updateItem(key, updater) {
+			this.setItem(key, updater(this.getItem(key)));
+		},
+
+		toObject() {
+			return MEM;
+		},
 	};
 }
 

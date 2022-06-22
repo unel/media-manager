@@ -1,17 +1,18 @@
 import { readFile } from 'fs/promises';
 
+import { hashByPath } from '$storages/indexes';
+
 export function byte2hexstr(byte: number) {
 	return byte.toString(16).padStart(2, '0');
 }
 
-const CACHE = new Map();
-export async function computeFileHash(file: File | string, type: string = 'sha-1') {
-	const cacheKey = file;
-	if (CACHE.has(cacheKey)) {
-		console.log('cache ok', cacheKey);
-		return CACHE.get(cacheKey);
+export async function computeFileHash(file: File | string, type: string = 'sha-1'): Promise<string> {
+	const path = typeof file === 'string' ? file : undefined;
+
+	const cachedValue = hashByPath.getItem(path);
+	if (cachedValue) {
+		return cachedValue;
 	}
-	console.log('cache miss', cacheKey);
 
 	const algorithm = type.toUpperCase();
 	const buffer = typeof file === 'string'
@@ -26,7 +27,9 @@ export async function computeFileHash(file: File | string, type: string = 'sha-1
 		)
 		.join('');
 
-	CACHE.set(cacheKey, hash);
+	if (path) {
+		hashByPath.setItem(path, hash);
+	}
 
 	return hash;
 }

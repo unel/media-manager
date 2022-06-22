@@ -1,7 +1,8 @@
 import { extname, resolve } from 'path';
-import { stat, open, readFile, writeFile } from 'fs/promises';
+import { stat, open, readFile, writeFile, readdir } from 'fs/promises';
 
 import env from '$constants/env';
+import {  hashByPath, pathsByHash, metaByHash } from '$storages/indexes';
 import { computeFileHash } from './compute-file-hash';
 
 
@@ -87,15 +88,15 @@ export async function getNormalisedFileName(file: File | string): Promise<string
 }
 
 export async function getMetaPath(file: File | string): Promise<string> {
-	return resolve(env.INFO_ROOT, getMetaFileName(file));
+	return resolve(env.INFO_ROOT, await getMetaFileName(file));
 }
 
 export async function getUploadPath(file: File | string): Promise<string> {
-	return resolve(env.UPLOAD_ROOT, getNormalisedFileName(file));
+	return resolve(env.UPLOAD_ROOT, await getNormalisedFileName(file));
 }
 
 export async function getStorePath(file: File | string): Promise<string> {
-	return resolve(env.STORE_ROOT, getNormalisedFileName(file));
+	return resolve(env.STORE_ROOT, await getNormalisedFileName(file));
 }
 
 export async function updateMetaForFile(file: File, meta: Object) {
@@ -128,4 +129,52 @@ export async function isFileExists(path: string): Promise<boolean> {
 	} catch {
 		return false;
 	}
+}
+
+export async function walkFiles(dir: string, cb: (filePath: string) => void, parent) {
+	const items = await readdir(dir, { withFileTypes: true });
+
+	for (const item of items) {
+		const itemPath = resolve(dir, item.name);
+		if (item.isDirectory()) {
+			await walkFiles(itemPath, cb, item);
+		} else {
+			cb(itemPath);
+		}
+	}
+
+	if (!parent) {
+		cb(null);
+	}
+}
+
+export async function buildFilesIndexes(rootDir, statusStorage) {
+	if (statusStorage.getItem('buildStarted') && !statusStorage.getItem('buildFinished')) {
+		console.warn('wowowo, it is dangerous!!');
+		return;
+	}
+
+	statusStorage.setItem('rootDir', rootDir);
+	statusStorage.setItem('buildStarted', Date.now());
+	statusStorage.setItem('buildFinished', undefined);
+	statusStorage.setItem('indexedFiles', 0);
+
+
+
+	walkFiles(rootDir,  async (path) => {
+		if (path === null) {
+			statusStorage.setItem('buildFinished', Date.now());
+			return;
+		}
+
+		const hash = await computeFileHash(path);
+
+		pathsByHash.updateItem(hash, (paths = []) => paths.concat([path]));
+		hashByPath.setItem(path, hash);
+
+		const meta = await getFileMeta(path);
+		metaByHash.setItem(hash, meta);
+
+		statusStorage.updateItem('indexedFiles', (count = 0) => count + 1);
+	});
 }

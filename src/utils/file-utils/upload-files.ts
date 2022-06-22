@@ -5,7 +5,7 @@ export function uploadFiles(files: File[]) {
 		data.append(`file-${index}`, file, file.name);
 	}
 
-	return fetch('/files/upload', {
+	return fetch('/api/files/upload', {
 		method: 'POST',
 		body: data,
 	});
