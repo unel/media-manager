@@ -2,6 +2,7 @@ import { extname, resolve } from 'path';
 import { stat, open, readFile, writeFile } from 'fs/promises';
 
 import env from '$constants/env';
+import { computeFileHash } from './compute-file-hash';
 
 
 type TReadingMethods = 'readAsText' | 'readAsDataURL' | 'readAsBinaryString' | 'readAsArrayBuffer';
@@ -59,26 +60,6 @@ export function walkFileChunks(file: File, chunkSize: number = (2 * megabyte), c
 	};
 
 	loadNext();
-}
-
-
-function byte2hexstr(byte: number) {
-	return byte.toString(16).padStart(2, '0');
-}
-
-export async function computeFileHash(file: File | string, type: string = 'sha-1') {
-	const algorithm = type.toUpperCase();
-	const buffer = typeof file === 'string'
-		? await readFile(file)
-		: await file.arrayBuffer();
-
-	const digest = await crypto.subtle.digest(algorithm, buffer);
-
-	return Array.from(new Uint8Array(digest))
-		.map(
-			(byte: number) => byte2hexstr(byte)
-		)
-		.join('');
 }
 
 export async function generateBaseMetainfoForFile(file: File): Promise<Object> {
