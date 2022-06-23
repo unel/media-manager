@@ -4,13 +4,14 @@ import { readdir } from 'fs/promises';
 import env from '$constants/env';
 import { getFileMeta, walkFiles } from '$utils/file-utils';
 import { computeFileHash } from '$utils/file-utils/compute-file-hash';
-import { hashByPath, metaByHash } from '$storages/indexes';
+import { hashByPath } from "$storages/indexes/hash-by-path";
+import { metaByHash } from "$storages/indexes/meta-by-hash";
 
 async function getFilesList(dir: string): string[] {
 	const paths = [];
 	const metaPromises = [];
 
-	return Object.entries(hashByPath.toObject()).map(([path, hash]) => {
+	return Object.entries(hashByPath.toObject() || {}).map(([path, hash]) => {
 		return {
 			path,
 			meta: metaByHash.getItem(hash),

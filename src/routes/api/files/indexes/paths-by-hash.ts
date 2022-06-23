@@ -1,4 +1,4 @@
-import { pathsByHash } from "$storages/indexes";
+import { pathsByHash } from "$storages/indexes/paths-by-hash";
 
 export async function get() {
 	return {

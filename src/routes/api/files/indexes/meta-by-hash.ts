@@ -1,4 +1,4 @@
-import { metaByHash } from "$storages/indexes";
+import { metaByHash } from "$storages/indexes/meta-by-hash";
 
 export async function get() {
 	return {

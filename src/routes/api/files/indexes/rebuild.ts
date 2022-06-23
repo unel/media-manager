@@ -1,6 +1,6 @@
 import env from '$constants/env';
-import { indexationStatus } from '$storages/indexes';
-import { buildFilesIndexes } from '$utils/file-utils';
+import { indexationStatus } from "$storages/indexes/indexation-status";
+import { buildIndexes } from "$utils/file-utils/build-indexes";
 
 export async function post() {
 	console.log('index rebuild');
@@ -12,7 +12,7 @@ export async function post() {
 	}
 
 	console.log('rebuild start');
-	buildFilesIndexes(env.MEDIA_ROOT, indexationStatus);
+	buildIndexes(env.MEDIA_ROOT, indexationStatus);
 	return {
 		body: 'started',
 	};

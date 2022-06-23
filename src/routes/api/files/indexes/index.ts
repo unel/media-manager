@@ -1,9 +1,9 @@
 import env from '$constants/env';
-import { indexationStatus } from '$storages/indexes';
-import { buildFilesIndexes } from '$utils/file-utils';
+import { indexationStatus } from "$storages/indexes/indexation-status";
+import { buildIndexes } from "$utils/file-utils/build-indexes";
 
 
-buildFilesIndexes(env.MEDIA_ROOT, indexationStatus);
+buildIndexes(env.MEDIA_ROOT, indexationStatus);
 
 export async function get() {
 	const buildStarted = indexationStatus.getItem('buildStarted');

@@ -1,6 +1,6 @@
 import { readFile } from 'fs/promises';
 
-import { hashByPath } from '$storages/indexes';
+import { hashByPath } from "$storages/indexes/hash-by-path";
 
 export function byte2hexstr(byte: number) {
 	return byte.toString(16).padStart(2, '0');
@@ -28,7 +28,7 @@ export async function computeFileHash(file: File | string, type: string = 'sha-1
 		.join('');
 
 	if (path) {
-		hashByPath.setItem(path, hash);
+		hashByPath.add({ path, hash });
 	}
 
 	return hash;
