@@ -26,6 +26,7 @@ export async function get() {
 			buildStarted,
 			buildFinished,
 			buildTime,
+			queueSize: indexationStatus.getItem('queueSize'),
 			indexAge: buildFinished ? Date.now() - buildFinished : 0,
 			indexedFiles: indexationStatus.getItem('indexedFiles'),
 		},

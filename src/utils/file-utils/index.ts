@@ -145,6 +145,7 @@ type TWalkEntry = {
 type TWalkItemResult = {
 	path: string,
 	item: TWalkItem,
+	queue: TWalkEntry[],
 };
 
 type TWalkItemsCb = (item: TWalkItemResult | null, next: () => void) => void;
@@ -182,9 +183,13 @@ async function walkItemsByEntries(walkEntries: TWalkEntry[] , cb: TWalkItemsCb) 
 	}
 
 	// console.log('walkItemsByEntries/call cb for', itemPath, item);
-	cb({ path: itemPath, item },
+	cb({ path: itemPath, item, queue: walkEntries },
 		() => { walkItemsByEntries(walkEntries, cb) }
 	);
+}
+
+function computeWalkDirItemsQueueSize(walkEntries: TWalkEntry[]) {
+	return walkEntries.reduce((acc, entry) => acc + entry.items.length, 0);
 }
 
 export async function walkDirItems(dir: string, cb: TWalkItemsCb): void {
@@ -211,6 +216,7 @@ export async function buildFilesIndexes(rootDir, statusStorage) {
 			statusStorage.setItem('buildFinished', Date.now());
 			return;
 		}
+		statusStorage.setItem('queueSize', computeWalkDirItemsQueueSize(data.queue));
 
 		const path = data.path;
 		const hash = await computeFileHash(path);
@@ -224,7 +230,7 @@ export async function buildFilesIndexes(rootDir, statusStorage) {
 		statusStorage.updateItem('indexedFiles', (count = 0) => count + 1);
 		// console.log('walkDirItem', data, 'finish');
 
-		await delay(20);
+		await delay(2);
 		next();
 	});
 }

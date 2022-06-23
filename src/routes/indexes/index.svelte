@@ -1,13 +1,22 @@
 <script context="module" lang="ts">
-	async function fetchStatus() {
-		try {
-			const response = await fetch('/api/files/indexes');
-			const data = await response.json();
+	type TTimestamp = number;
+	type TMSDuration = number;
 
-			return data;
-		} catch (e) {
-			// console.warn('e??', e);
-		}
+	type TIndexationStatus = {
+		rootDir: string;
+		status: 'pending' | 'started' | 'finidhed';
+		buildStarted?: TTimestamp;
+		buildFinished?: TTimestamp;
+		buildTime: TMSDuration;
+		indexAge: TMSDuration;
+		indexedFiles: number;
+		queueSize: number;
+	}
+	async function fetchStatus(): Promise<TIndexationStatus> {
+		const response = await fetch('/api/files/indexes');
+		const data = await response.json();
+
+		return data;
 	}
 
 	async function rebuildIndexes() {
@@ -15,22 +24,39 @@
 	}
 
 	export async function load({ fetch }: any) {
+		let data, error;
+
+		try {
+			data = await fetchStatus();
+		} catch (e) {
+			error = String(e);
+		}
+
 		return {
 			props: {
-				data: await fetchStatus(),
+				data,
+				error,
 			}
 		};
 	}
 </script>
 
 <script lang="ts">
-	export let data = {};
+	export let data: TIndexationStatus;
+	export let error: string;
 
 	let status = data;
 
-	// setInterval(async () => {
-	// 	// status = await fetchStatus();
-	// }, 1000);
+	$: speed = status ?  Math.round(status.indexedFiles / (status.buildTime / 1000)) : 0;
+	$: totalTime = status ? Math.round(status.queueSize / speed ) : 0;
+
+	setInterval(async () => {
+		try {
+			status = await fetchStatus();
+		} catch (e) {
+			error = String(e);
+		}
+	}, 1000);
 
 </script>
 
@@ -40,10 +66,19 @@
 
 <main>
 	<section>
-		<pre>{JSON.stringify(status, undefined, 4)}</pre>
+		{#if status}
+			<pre>{JSON.stringify(status, undefined, 4)}</pre>
+
+			avg indexation speed: {speed} files per second<br>
+			time to finish: {totalTime} sec.
+		{:else if error}
+			fetch status error: {error}
+		{/if}
+
 		<button on:click={() => rebuildIndexes()}>
 			rebuild
-	</button>
+		</button>
+
 	</section>
 </main>
 
