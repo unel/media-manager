@@ -3,6 +3,7 @@ import { stat, open, readFile, writeFile, readdir } from 'fs/promises';
 
 import env from '$constants/env';
 import {  hashByPath, pathsByHash, metaByHash } from '$storages/indexes';
+import { delay } from '$utils/time-utils';
 import { computeFileHash } from './compute-file-hash';
 
 
@@ -131,21 +132,64 @@ export async function isFileExists(path: string): Promise<boolean> {
 	}
 }
 
-export async function walkFiles(dir: string, cb: (filePath: string) => void, parent) {
-	const items = await readdir(dir, { withFileTypes: true });
+type ArrayElementType<ArrayType extends Array> = ArrayType[number];
 
-	for (const item of items) {
-		const itemPath = resolve(dir, item.name);
-		if (item.isDirectory()) {
-			await walkFiles(itemPath, cb, item);
-		} else {
-			cb(itemPath);
-		}
+type TReaddirResult = ReturnType<typeof readdir>;
+type TWalkItems = Awaited<TReaddirResult>;
+type TWalkItem =ArrayElementType<TWalkItems>;
+type TWalkEntry = {
+	path: string,
+	items: TWalkItems,
+}
+
+type TWalkItemResult = {
+	path: string,
+	item: TWalkItem,
+};
+
+type TWalkItemsCb = (item: TWalkItemResult | null, next: () => void) => void;
+
+async function getWalkEntry(path: string): Promise<WalkEntry> {
+	const items = await readdir(path, { withFileTypes: true });
+
+	return { path, items };
+}
+
+async function walkItemsByEntries(walkEntries: TWalkEntry[] , cb: TWalkItemsCb) {
+	// console.log('walkItemsByEntries/step', walkEntries.length);
+	if (walkEntries.length === 0) {
+		// console.log('walkItemsByEntries/entires is empty, call final cb');
+		return cb(null);
 	}
 
-	if (!parent) {
-		cb(null);
+	const entry = walkEntries[0];
+	// console.log('walkItemsByEntries/entry', entry);
+	if (entry.items.length === 0) {
+		// console.log('walkItemsByEntries/shifting enties');
+		walkEntries.shift();
+		return walkItemsByEntries(walkEntries, cb);
 	}
+
+	const item = entry.items.shift();
+	const itemPath = resolve(entry.path, item.name);
+	// console.log('walkItemsByEntries/entry item', itemPath, item);
+
+	if (item?.isDirectory()) {
+		// console.log('walkItemsByEntries/get subentries of ', itemPath);
+		subEntry = await getWalkEntry(itemPath);
+		walkEntries.push(subEntry);
+		return walkItemsByEntries(walkEntries, cb);
+	}
+
+	// console.log('walkItemsByEntries/call cb for', itemPath, item);
+	cb({ path: itemPath, item },
+		() => { walkItemsByEntries(walkEntries, cb) }
+	);
+}
+
+export async function walkDirItems(dir: string, cb: TWalkItemsCb): void {
+	const rootEntry = await getWalkEntry(dir);
+	walkItemsByEntries([rootEntry], cb);
 }
 
 export async function buildFilesIndexes(rootDir, statusStorage) {
@@ -160,13 +204,15 @@ export async function buildFilesIndexes(rootDir, statusStorage) {
 	statusStorage.setItem('indexedFiles', 0);
 
 
+	walkDirItems(rootDir,  async (data, next) => {
+		// console.log('walkDirItem', data, 'start');
 
-	walkFiles(rootDir,  async (path) => {
-		if (path === null) {
+		if (data === null) {
 			statusStorage.setItem('buildFinished', Date.now());
 			return;
 		}
 
+		const path = data.path;
 		const hash = await computeFileHash(path);
 
 		pathsByHash.updateItem(hash, (paths = []) => paths.concat([path]));
@@ -176,5 +222,9 @@ export async function buildFilesIndexes(rootDir, statusStorage) {
 		metaByHash.setItem(hash, meta);
 
 		statusStorage.updateItem('indexedFiles', (count = 0) => count + 1);
+		// console.log('walkDirItem', data, 'finish');
+
+		await delay(20);
+		next();
 	});
 }
