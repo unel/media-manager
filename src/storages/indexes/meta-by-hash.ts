@@ -2,8 +2,10 @@ import { resolve as resolvePath } from 'path';
 
 import env from '$constants/env';
 import { jsonFilesStorage } from '$storages/json-files-storage';
+import { createInmemoryStorage} from '$storages/in-memory';
 
-function createStore() {
+
+function createStoreP() {
 	const store =  jsonFilesStorage(resolvePath(env.INDEXES_ROOT, 'meta'), '.meta.json');
 
 	return {
@@ -15,4 +17,17 @@ function createStore() {
 		toObject: () => store.toObject(),
 	}
 }
-export const metaByHash = createStore();
+
+function createStoreM() {
+	const store = createInmemoryStorage();
+
+	return {
+		loadData: () => Promise.resolve(),
+		add: ({ hash, meta }) => store.setItem(hash, meta),
+		getItem: (hash) => store.getItem(hash),
+		toObject: () => store.toObject(),
+	}
+}
+
+const storeToFile = false;
+export const metaByHash = storeToFile ? createStoreP() : createStoreM();

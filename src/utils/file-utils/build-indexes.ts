@@ -30,7 +30,7 @@ export async function buildIndexes(rootDir, statusStorage) {
 
 
 	async function buildIndexForEntry(entry) {
-		statusStorage.setItem('queueSize', computeWalkDirItemsQueueSize(entry.queue));
+		indexationQueue.setValue(entry.queue);
 
 		const path = entry.path;
 		const hash = await computeFileHash(path);
