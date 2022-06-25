@@ -1,5 +1,6 @@
 <script context="module" lang="ts">
-	export async function load({ fetch, session }: any) {
+	import type { LoadEvent } from '@sveltejs/kit';
+	export async function load({ fetch, session }: LoadEvent) {
 		const response = await fetch(`/api/files`);
 		const data = await response.json();
 
@@ -7,7 +8,11 @@
 			props: {
 				data,
 				session,
-			}
+			},
+
+			stuff: {
+				pageName: 'index',
+			},
 		};
 	}
 </script>
@@ -19,9 +24,9 @@
 	}
 	import { pickRandomElement, pickRandomElements } from '$utils/array-utils';
 	import { createPersistantStore } from '$src/stores/proxy-store';
-	import Media from '../components/media.svelte';
+	import Media from '$components/media.svelte';
 	export let data: TFileData[];
-	export let session;
+	export let session: Record<string, any>;
 
 	let seed = Math.random();
 	const pathRe = createPersistantStore(session.sessionId, 'settings.pathRe', '.jpg$');
@@ -62,63 +67,53 @@
 </script>
 
 <svelte:head>
-	<title>hello dude</title>
+	<title>hello dude/index</title>
 </svelte:head>
-<main>
-	<section class="grid" style="grid-template-columns: {$previewSize}% {100 - $previewSize}%;">
-		<section class="filter">
-			<h1>total files: {data.length}</h1>
-			<input name="re" type="text" bind:value={$pathRe} />
-			<input name="limit" type="number" bind:value={$dataLimit} min="0" max={data.length} />
-			<select on:change={applyPathFilter}>
-				<option value=".*">any</option>
-				{#each types as fileType}
-					<option value="\.{fileType}$">{fileType}</option>
-				{/each}
-			</select>
-			<button on:click={changeShuffleSeed}>shuffle</button>
 
-			<hr />
-			<input type="range" min={10} max={100} bind:value={$previewSize} />
-		</section>
+<section class="grid" style="grid-template-columns: {$previewSize}% {100 - $previewSize}%;">
+	<section class="filter">
+		<h1>total files: {data.length}</h1>
+		<input name="re" type="text" bind:value={$pathRe} />
+		<input name="limit" type="number" bind:value={$dataLimit} min="0" max={data.length} />
+		<select on:change={applyPathFilter}>
+			<option value=".*">any</option>
+			{#each types as fileType}
+				<option value="\.{fileType}$">{fileType}</option>
+			{/each}
+		</select>
+		<button on:click={changeShuffleSeed}>shuffle</button>
 
-		<section class="viewbox {selectedFile ? 'viewbox-visible' : ''}">
-			{#if selectedFile}
-				<a href="/files/{encodeURIComponent(selectedFile.path)}">
-					<Media path={selectedFile.path} height="100%" />
-				</a>
-			{/if}
-		</section>
+		<hr />
+		<input type="range" min={10} max={100} bind:value={$previewSize} />
+	</section>
 
-		{#if filteredData?.length}
-			<section class="media-list">
-				{#each filteredData as fileData}
-					<span
-						on:mouseenter={(e) => {
-							selectFile(fileData);
-						}}
-						on:mouseleave={clearFile}
-					>
-						{#if fileData?.path}
-							<Media path={fileData.path} width="100%" />
-						{/if}
-					</span>
-				{/each}
-			</section>
+	<section class="viewbox {selectedFile ? 'viewbox-visible' : ''}">
+		{#if selectedFile}
+			<a href="/files/{encodeURIComponent(selectedFile.path)}">
+				<Media path={selectedFile.path} height="100%" />
+			</a>
 		{/if}
 	</section>
-</main>
+
+	{#if filteredData?.length}
+		<section class="media-list">
+			{#each filteredData as fileData}
+				<span
+					on:mouseenter={(e) => {
+						selectFile(fileData);
+					}}
+					on:mouseleave={clearFile}
+				>
+					{#if fileData?.path}
+						<Media path={fileData.path} width="100%" />
+					{/if}
+				</span>
+			{/each}
+		</section>
+	{/if}
+</section>
 
 <style>
-	:global(html),
-	:global(body),
-	:global(body > div),
-	:global(main) {
-		height: 100%;
-		/* max-height: 100%; */
-		margin: 0;
-		padding: 0;
-	}
 	.grid {
 		height: 100%;
 		max-height: 100%;

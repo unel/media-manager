@@ -1,4 +1,5 @@
 <script context="module" lang="ts">
+	import type { LoadEvent } from '@sveltejs/kit';
 	type TTimestamp = number;
 	type TMSDuration = number;
 
@@ -23,7 +24,7 @@
 		fetch('/api/files/indexes/rebuild', { method: 'POST' });
 	}
 
-	export async function load({ fetch }: any) {
+	export async function load({ fetch }: LoadEvent) {
 		let data, error;
 
 		try {
@@ -36,7 +37,11 @@
 			props: {
 				data,
 				error,
-			}
+			},
+
+			stuff: {
+				pageName: 'indexation',
+			},
 		};
 	}
 </script>
