@@ -21,7 +21,7 @@ export async function buildIndexes(rootDir, statusStorage) {
 		pathsByHash.loadData(),
 		metaByHash.loadData(),
 		indexationQueue.loadData(),
-	])
+	]);
 
 	statusStorage.setItem('rootDir', rootDir);
 	statusStorage.setItem('buildStarted', Date.now());
@@ -56,7 +56,7 @@ export async function buildIndexes(rootDir, statusStorage) {
 		next();
 	}
 
-	const queue = indexationQueue.getValue()
+	const queue = undefined; //indexationQueue.getValue()
 	if (queue) {
 		walkItemsByEntries(queue, walkIndexCb);
 	} else {

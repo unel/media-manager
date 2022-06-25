@@ -19,6 +19,18 @@
 	font-weight: bold;
 	text-decoration: none;
 }
+
+.links-list {
+	display: flex;
+	flex-direction: row;
+
+	padding: 0;
+	column-gap: 16px;
+}
+
+.links-list-item {
+	display: inline-block;
+}
 </style>
 
 
@@ -26,9 +38,13 @@
 	<h1>{currentPage?.title}</h1>
 
 	<nav>
-		<ul>
+		<ul class="links-list">
 			{#each pages as pageItem }
-				<li><a class={pageItem.name == currentPageName ? 'link-current' : 'link'} href={pageItem.url}>{pageItem.title}</a></li>
+				<li class="links-list-item">
+					<a class={pageItem.name == currentPageName ? 'link-current' : 'link'} href={pageItem.url}>
+						[{ pageItem.title }]
+					</a>
+				</li>
 			{/each}
 		</ul>
 	</nav>

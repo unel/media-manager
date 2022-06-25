@@ -25,6 +25,7 @@
 	import { pickRandomElement, pickRandomElements } from '$utils/array-utils';
 	import { createPersistantStore } from '$src/stores/proxy-store';
 	import Media from '$components/media.svelte';
+	import IndexationStatus from '$src/components/indexation-status.svelte';
 	export let data: TFileData[];
 	export let session: Record<string, any>;
 
@@ -69,6 +70,8 @@
 <svelte:head>
 	<title>hello dude/index</title>
 </svelte:head>
+
+<IndexationStatus />
 
 <section class="grid" style="grid-template-columns: {$previewSize}% {100 - $previewSize}%;">
 	<section class="filter">

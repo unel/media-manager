@@ -77,32 +77,19 @@
 	<title>indexation status</title>
 </svelte:head>
 
-<main>
-	<section>
-		{#if status}
-			<pre>{JSON.stringify(status, undefined, 4)}</pre>
-			last delta time: {timeDelta} <br>
-			last delta files: {filesDelta} <br>
-			speed: -avg: {speed} files / sec, -delta: {deltaSpeed} files / sec<br>
-			time to finish: - avg: {totalTime} sec, -delta: {estimationByDelta} sec
-		{:else if error}
-			fetch status error: {error}
-		{/if}
+<section>
+	{#if status}
+		<pre>{JSON.stringify(status, undefined, 4)}</pre>
+		last delta time: {timeDelta} <br>
+		last delta files: {filesDelta} <br>
+		speed: -avg: {speed} files / sec, -delta: {deltaSpeed} files / sec<br>
+		time to finish: - avg: {totalTime} sec, -delta: {estimationByDelta} sec
+	{:else if error}
+		fetch status error: {error}
+	{/if}
 
-		<button on:click={() => rebuildIndexes()}>
-			rebuild
-		</button>
+	<button on:click={() => rebuildIndexes()}>
+		rebuild
+	</button>
 
-	</section>
-</main>
-
-<style>
-	:global(html),
-	:global(body),
-	:global(body > div),
-	:global(main) {
-		height: 100%;
-		margin: 0;
-		padding: 0;
-	}
-</style>
+</section>
