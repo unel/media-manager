@@ -1,7 +1,7 @@
 import { writable } from "svelte/store";
 
 import inmemoryStorage from "$storages/in-memory";
-import sessionStorage from "$storages/session";
+import browserStorage from "$storages/browser-storage";
 
 
 export function createProxyStore({ setItem, getItem, defaultValue }) {
@@ -20,16 +20,18 @@ export function createProxyStore({ setItem, getItem, defaultValue }) {
 	};
 }
 
-function getPersistantStorage() {
-	return typeof window !== 'undefined' ? sessionStorage : inmemoryStorage;
+function getPersistantStorage(sessionId) {
+	return typeof window !== 'undefined' ? browserStorage : {
+		setItem: (key, value) => inmemoryStorage.setItem(`${sessionId}:${key}`),
+		getItem: (key, value) => inmemoryStorage.getItem(`${sessionId}:${key}`),
+	};
 }
 
-export function createPersistantStore(key, defaultValue) {
-	const storage = getPersistantStorage();
+export function createPersistantStore(sessionId, key, defaultValue) {
+	const storage = getPersistantStorage(sessionId);
 
-	return createProxyStore({
-		setItem: (value) =>  storage.setItem(key, value),
-		getItem: () => storage.getItem(key, defaultValue),
-		defaultValue,
-	});
+	const getItem = (value) => storage.getItem(key, defaultValue) ;
+	const setItem = (value) => storage.setItem(key, value);
+
+	return createProxyStore({ getItem, setItem, defaultValue });
 }

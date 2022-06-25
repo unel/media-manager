@@ -1,11 +1,12 @@
 <script context="module" lang="ts">
-	export async function load({ fetch }: any) {
+	export async function load({ fetch, session }: any) {
 		const response = await fetch(`/api/files`);
 		const data = await response.json();
 
 		return {
 			props: {
-				data
+				data,
+				session,
 			}
 		};
 	}
@@ -16,16 +17,16 @@
 		path: string,
 		meta: Object,
 	}
-
 	import { pickRandomElement, pickRandomElements } from '$utils/array-utils';
 	import { createPersistantStore } from '$src/stores/proxy-store';
 	import Media from '../components/media.svelte';
 	export let data: TFileData[];
+	export let session;
 
 	let seed = Math.random();
-	const pathRe = createPersistantStore('settings.pathRe', '.jpg$');
-	const previewSize = createPersistantStore('settings.ps', 27);
-	const dataLimit = createPersistantStore('settings.dataLimit', 10);
+	const pathRe = createPersistantStore(session.sessionId, 'settings.pathRe', '.jpg$');
+	const previewSize = createPersistantStore(session.sessionId, 'settings.ps', 27);
+	const dataLimit = createPersistantStore(session.sessionId, 'settings.dataLimit', 10);
 
 	$: types = [...new Set(data.map((d: TFileData) => getFileExtension(d.path)))];
 	$: filteredData = filter(data, $dataLimit, $pathRe, seed);
