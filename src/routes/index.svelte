@@ -30,6 +30,7 @@
 	export let session: Record<string, any>;
 
 	let seed = Math.random();
+	const contentAwareProceed = createPersistantStore(session.sessionId, 'settings.contentAwareProceed', false);
 	const pathRe = createPersistantStore(session.sessionId, 'settings.pathRe', '.jpg$');
 	const dataLimit = createPersistantStore(session.sessionId, 'settings.dataLimit', 10);
 	const displayFormat = createPersistantStore(session.sessionId, 'settings.displayFormat', 'column');
@@ -61,15 +62,8 @@
 	<title>hello dude/index</title>
 </svelte:head>
 
+{#if $contentAwareProceed}
 <section class="content">
-	<!-- <section class="viewbox" class:viewbox--m-visible={selectedFile}>
-		{#if selectedFile}
-			<a href="/files/{encodeURIComponent(selectedFile.path)}">
-				<Media path={selectedFile.path} height="100%" />
-			</a>
-		{/if}
-	</section> -->
-
 	<section class="grid">
 		<section class="indexation">
 			<IndexationStatus />
@@ -116,6 +110,9 @@
 		{/if}
 	</section>
 </section>
+{:else}
+	Restricted area: 18+ content! <button on:click={() => $contentAwareProceed = true}>i'm okay with this</button>
+{/if}
 
 <style>
 	.content {
@@ -134,19 +131,6 @@
 		grid-template-areas:
 			"indexation filter"
 			"media-list media-list";
-	}
-
-
-	.viewbox {
-		/* grid-area: preview; */
-		opacity: 0;
-		/* transition: opacity 1s linear; */
-		/* box-shadow: 5px 5px 5px -5px rgba(34, 60, 80, 0.6); */
-		overflow: hidden;
-	}
-
-	.viewbox--m-visible {
-		opacity: 0.99;
 	}
 
 	.indexation {
