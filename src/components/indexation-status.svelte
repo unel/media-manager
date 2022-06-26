@@ -12,19 +12,6 @@
 		indexedFiles: number;
 		queueSize: number;
 	}
-</script>
-
-<script lang="ts">
-	let error: string;
-	let prevStatus: TIndexationStatus ;
-	let status: TIndexationStatus ;
-
-	$: speed = status ?  Math.round(status.indexedFiles / (status.buildTime / 1000)) : 0;
-	$: totalTime = status ? Math.round(status.queueSize / speed ) : 0;
-	$: timeDelta = (prevStatus && status) ? status.buildTime - prevStatus.buildTime : 0;
-	$: filesDelta = (prevStatus && status) ? status.indexedFiles - prevStatus.indexedFiles : 0;
-	$: deltaSpeed = (timeDelta && filesDelta) ? Math.round(filesDelta / (timeDelta / 1000)) : 0;
-	$: estimationByDelta = deltaSpeed ?  Math.round(status.queueSize / deltaSpeed) : 0;
 
 	async function fetchStatus(): Promise<TIndexationStatus> {
 		const response = await fetch('/api/files/indexes');
@@ -35,8 +22,19 @@
 
 	async function rebuildIndexes() {
 		await fetch('/api/files/indexes/rebuild', { method: 'POST' });
-		startStatusUpdating();
 	}
+</script>
+
+<script lang="ts">
+	let prevStatus: TIndexationStatus ;
+	let status: TIndexationStatus ;
+
+	$: speed = status ?  Math.round(status.indexedFiles / (status.buildTime / 1000)) : 0;
+	$: totalTime = status ? Math.round(status.queueSize / speed ) : 0;
+	$: timeDelta = (prevStatus && status) ? status.buildTime - prevStatus.buildTime : 0;
+	$: filesDelta = (prevStatus && status) ? status.indexedFiles - prevStatus.indexedFiles : 0;
+	$: deltaSpeed = (timeDelta && filesDelta) ? Math.round(filesDelta / (timeDelta / 1000)) : 0;
+	$: estimationByDelta = deltaSpeed ?  Math.round(status.queueSize / deltaSpeed) : 0;
 
 	async function updateStatus() {
 		try {
@@ -53,7 +51,6 @@
 				stopStatusUpdating();
 			}
 		} catch (e) {
-			error = String(e);
 		}
 	}
 
@@ -66,7 +63,14 @@
 		clearInterval(timerId);
 	}
 
-	startStatusUpdating();
+	async function runRebuildIndexes() {
+		await rebuildIndexes();
+		await updateStatus();
+
+		startStatusUpdating();
+	}
+
+	updateStatus().then(() => startStatusUpdating());
 </script>
 
 <section class="root">
@@ -76,7 +80,7 @@
 
 		{#if status.status == 'finished'}
 			<hr />
-			<button on:click={() => rebuildIndexes()}>
+			<button on:click={runRebuildIndexes}>
 				reindex
 			</button>
 		{:else}

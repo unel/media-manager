@@ -6,7 +6,8 @@
 		{url: '/indexes', title: 'indexation status', name: 'indexation'},
 	];
 
-	$: currentPage = pages.find(pageItem => pageItem.name == $page.stuff.pageName);
+	$: pageStuff = $page.stuff as Record<string, unknown>;
+	$: currentPage = pages.find(pageItem => pageItem.name == pageStuff.pageName);
 	$: currentPageName = currentPage?.name;
 </script>
 
@@ -14,7 +15,7 @@
 .link {
 }
 
-.link-current {
+.link--m-active {
 	color: black;
 	font-weight: bold;
 	text-decoration: none;
@@ -41,7 +42,12 @@
 		<ul class="links-list">
 			{#each pages as pageItem }
 				<li class="links-list-item">
-					<a class={pageItem.name == currentPageName ? 'link-current' : 'link'} href={pageItem.url}>
+					<a
+						class="link"
+						class:link--m-active = {pageItem.name == currentPageName}
+
+						href={pageItem.url}
+					>
 						[{ pageItem.title }]
 					</a>
 				</li>
