@@ -126,7 +126,7 @@
 		display: grid;
   		grid-auto-columns: 1fr;
 		grid-template-columns: 1fr;
-  		grid-template-rows: calc(16 * var(--step-size)) 1fr;
+  		grid-template-rows: max-content 1fr;
 		gap: calc(2 * var(--step-size));
 		grid-template-areas:
 			"controls"
