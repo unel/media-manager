@@ -144,12 +144,23 @@
 	.indexation {
 		border: 1px solid silver;
 		padding: calc(2 * var(--step-size));
+		flex-grow: 1;
 	}
 
 	.filter {
-		display: inline-block;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		flex-grow: 1;
+		align-items: center;
+
 		border: 1px solid silver;
 		padding: calc(2 * var(--step-size));
+		gap: var(--step-size);
+	}
+
+	.filter > * {
+		flex-grow: 1;
 	}
 
 	.media-list {
