@@ -5,10 +5,6 @@ export function createInmemoryStorage(name = '') {
 	return {
 		name,
 		getItem(key, defaultValue) {
-			if (name == 'global') {
-				console.log(`inmem "${name}" getItem`, key, MEM[key], MEM);
-			}
-
 			if (!MEM.hasOwnProperty(key)) {
 				MEM[key] = defaultValue;
 			}
@@ -18,6 +14,10 @@ export function createInmemoryStorage(name = '') {
 
 		setItem(key, value) {
 			MEM[key] = value;
+		},
+
+		removeItem(key) {
+			delete MEM[key];
 		},
 
 		updateItem(key, updater) {

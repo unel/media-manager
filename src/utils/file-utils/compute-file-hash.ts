@@ -16,7 +16,7 @@ export async function computeFileHash(file: File | string, type: string = 'sha-1
 
 	const algorithm = type.toUpperCase();
 	const buffer = typeof file === 'string'
-		? await readFile(file)
+		? await readFile(path)
 		: await file.arrayBuffer();
 
 	const digest = await crypto.subtle.digest(algorithm, buffer);

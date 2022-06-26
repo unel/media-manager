@@ -2,6 +2,8 @@ import { resolve, extname } from 'path';
 import { stat, writeFile } from 'fs/promises';
 
 import { getUploadPath, updateMetaForFile } from '$utils/file-utils';
+import { buildUploadsIndex } from '$utils/file-utils/build-meta-index';
+import { processUploadsIndex } from "$utils/file-utils/process-uploads-index";
 
 
 async function writeFileToUploads(file: File) {
@@ -16,6 +18,7 @@ async function writeFileToUploads(file: File) {
 
 	return {writeResult, meta};
 }
+
 export async function post({ request }) {
 	const formData = await  request.formData();
 	const results = [];
@@ -28,6 +31,10 @@ export async function post({ request }) {
 			result,
 		});
 	}
+
+	buildUploadsIndex().then(() => {
+		processUploadsIndex();
+	})
 
 	return {
 		status: 200,

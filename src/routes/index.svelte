@@ -1,4 +1,16 @@
 <script context="module" lang="ts">
+	import { pickRandomElements } from '$utils/array-utils';
+	import { createPersistantStore } from '$src/stores/proxy-store';
+
+	import Media from '$components/media.svelte';
+	import IndexationStatus from '$components/indexation-status.svelte';
+	import FilesProcessing from '$components/files-processing.svelte';
+
+	type TFileData = {
+		path: string,
+		meta: Object,
+	}
+
 	import type { LoadEvent } from '@sveltejs/kit';
 	export async function load({ fetch, session }: LoadEvent) {
 		const response = await fetch(`/api/files`);
@@ -18,14 +30,6 @@
 </script>
 
 <script lang="ts">
-	type TFileData = {
-		path: string,
-		meta: Object,
-	}
-	import { pickRandomElements } from '$utils/array-utils';
-	import { createPersistantStore } from '$src/stores/proxy-store';
-	import Media from '$components/media.svelte';
-	import IndexationStatus from '$src/components/indexation-status.svelte';
 	export let data: TFileData[];
 	export let session: Record<string, any>;
 
@@ -66,6 +70,10 @@
 <section class="page-content">
 	<section class="grid">
 		<section class="controls">
+			<section class="processing">
+				<FilesProcessing />
+			</section>
+
 			<section class="indexation">
 				<IndexationStatus />
 			</section>
@@ -88,6 +96,7 @@
 
 				<button on:click={changeShuffleSeed}>shuffle</button>
 			</section>
+
 		</section>
 
 		{#if filteredData?.length}
@@ -161,6 +170,12 @@
 
 	.filter > * {
 		flex-grow: 1;
+	}
+
+	.processing {
+		flex-grow: 1;
+		border: 1px solid silver;
+		padding: calc(2 * var(--step-size));
 	}
 
 	.media-list {

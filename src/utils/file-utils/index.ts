@@ -81,7 +81,7 @@ export async function getMetaFileName(file: File | string): Promise<string> {
 
 export async function getNormalisedFileName(file: File | string): Promise<string> {
 	const hash = await computeFileHash(file, 'sha-1');
-	const ext = extname(file.name);
+	const ext = extname(typeof file == 'string' ? file : file.name);
 
 	return `${hash}${ext}`;
 }
@@ -98,7 +98,7 @@ export async function getStorePath(file: File | string): Promise<string> {
 	return resolve(env.STORE_ROOT, await getNormalisedFileName(file));
 }
 
-export async function updateMetaForFile(file: File, meta: Object) {
+export async function updateMetaForFile(file: File | string, meta: Object) {
 	const metaPath = await getMetaPath(file);
 	const prevInfo = await getFileMeta(file);
 	const nextInfo = {
@@ -117,7 +117,16 @@ export async function getFileMeta(file: File | string): Promise<Object> {
 	const metaPath = await getMetaPath(file);
 	const isMetaFileExists = await isFileExists(metaPath);
 
-	return isMetaFileExists ? JSON.parse(await readFile(metaPath)) : await generateBaseMetainfoForFile(file);
+	if (isMetaFileExists) {
+		const data = await readFile(metaPath, 'utf-8');
+		try {
+			return JSON.parse(data);
+		} catch (e) {
+			console.warn('can not parse string', data, e);
+		}
+	}
+
+	return generateBaseMetainfoForFile(file);
 }
 
 export async function isFileExists(path: string): Promise<boolean> {

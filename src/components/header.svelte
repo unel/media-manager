@@ -2,13 +2,15 @@
 	import { page } from '$app/stores';
 
 	const pages = [
-		{url: '/', title: 'index', name: 'index'},
+		{url: '/', title: 'Root page', name: 'index'},
 		{url: '/indexes', title: 'indexation status', name: 'indexation'},
 	];
 
 	$: pageStuff = $page.stuff as Record<string, unknown>;
 	$: currentPage = pages.find(pageItem => pageItem.name == pageStuff.pageName);
 	$: currentPageName = currentPage?.name;
+
+	const showNavigation = false;
 </script>
 
 <style>
@@ -38,6 +40,7 @@
 <header>
 	<h1>{currentPage?.title}</h1>
 
+	{#if showNavigation}
 	<nav>
 		<ul class="links-list">
 			{#each pages as pageItem }
@@ -54,5 +57,6 @@
 			{/each}
 		</ul>
 	</nav>
+	{/if}
 </header>
 

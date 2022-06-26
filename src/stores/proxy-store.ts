@@ -18,7 +18,6 @@ import browserStorage from "$storages/browser-storage";
 	};
 
 	const subscribe = (...args) => {
-		console.log('sub', args, localValue)
 		return subscribeLocal(...args);
 	}
 

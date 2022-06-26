@@ -22,7 +22,7 @@
 	}
 	.root {
 		--nav-bar-width: 0;
-		--header-height: calc(16 * var(--step-size));
+		--header-height: calc(8 * var(--step-size));
 
 		padding: var(--step-size);
 		display: grid;
