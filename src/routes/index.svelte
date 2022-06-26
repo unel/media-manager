@@ -22,7 +22,7 @@
 		path: string,
 		meta: Object,
 	}
-	import { pickRandomElement, pickRandomElements } from '$utils/array-utils';
+	import { pickRandomElements } from '$utils/array-utils';
 	import { createPersistantStore } from '$src/stores/proxy-store';
 	import Media from '$components/media.svelte';
 	import IndexationStatus from '$src/components/indexation-status.svelte';
@@ -31,24 +31,14 @@
 
 	let seed = Math.random();
 	const pathRe = createPersistantStore(session.sessionId, 'settings.pathRe', '.jpg$');
-	const previewSize = createPersistantStore(session.sessionId, 'settings.ps', 27);
 	const dataLimit = createPersistantStore(session.sessionId, 'settings.dataLimit', 10);
+	const displayFormat = createPersistantStore(session.sessionId, 'settings.displayFormat', 'column');
 
 	$: types = [...new Set(data.map((d: TFileData) => getFileExtension(d.path)))];
 	$: filteredData = filter(data, $dataLimit, $pathRe, seed);
 
-	let selectedFile: TFileData | undefined;
-
 	function getFileExtension(path: string): string {
 		return path.slice(((path.lastIndexOf('.') - 1) >>> 0) + 2);
-	}
-
-	function selectFile(newSelectedFile: TFileData) {
-		selectedFile = newSelectedFile;
-	}
-
-	function clearFile() {
-		// selectedFile = undefined;
 	}
 
 	function filter(data: TFileData[], dataLimit: number, pathRe: string, seed: number): TFileData[] {
@@ -87,8 +77,8 @@
 
 		<section class="filter">
 			<input name="re" type="text" bind:value={$pathRe} />
-			<input name="limit" type="number" bind:value={$dataLimit} min="0" max={data.length} />
-			<select on:change={applyPathFilter}>
+			<input name="limit" type="number" bind:value={$dataLimit} min="1" max={data.length} />
+			<select on:change={applyPathFilter} value={$pathRe}>
 				<option value=".*">any</option>
 				{#each types as fileType}
 					<option value="\.{fileType}$">{fileType}</option>
@@ -96,13 +86,19 @@
 			</select>
 			<button on:click={changeShuffleSeed}>shuffle</button>
 
-			<hr />
-			<input type="range" min={10} max={100} bind:value={$previewSize} />
+			<select bind:value={$displayFormat}>
+				<option value="row">in a row</option>
+				<option value="column">in a column</option>
+			</select>
 		</section>
 
 		{#if filteredData?.length}
 			<section class="media-list">
-				<div class="list list--m-vertical">
+				<div
+					class="list"
+					class:list--m-horizontal={$displayFormat == 'row'}
+					class:list--m-vertical={$displayFormat == 'column'}
+				>
 				{#each filteredData as fileData}
 					<!-- <span
 						on:mouseenter={(e) => {

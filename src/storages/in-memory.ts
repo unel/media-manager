@@ -1,12 +1,18 @@
 
-export function createInmemoryStorage() {
+export function createInmemoryStorage(name = '') {
 	const MEM = {};
 
 	return {
+		name,
 		getItem(key, defaultValue) {
+			if (name == 'global') {
+				console.log(`inmem "${name}" getItem`, key, MEM[key], MEM);
+			}
+
 			if (!MEM.hasOwnProperty(key)) {
 				MEM[key] = defaultValue;
 			}
+
 			return MEM[key];
 		},
 
@@ -24,4 +30,4 @@ export function createInmemoryStorage() {
 	};
 }
 
-export default createInmemoryStorage();
+export default createInmemoryStorage('global');
