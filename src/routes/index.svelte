@@ -94,16 +94,9 @@
 					class:list--m-vertical={$displayFormat == 'column'}
 				>
 				{#each filteredData as fileData}
-					<!-- <span
-						on:mouseenter={(e) => {
-							// selectFile(fileData);
-						}}
-						on:mouseleave={clearFile}
-					> -->
-						{#if fileData?.path}
-							<Media path={fileData.path} />
-						{/if}
-					<!-- </span> -->
+					{#if fileData?.path}
+						<Media path={fileData.path} />
+					{/if}
 				{/each}
 				</div>
 			</section>
