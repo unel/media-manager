@@ -37,7 +37,7 @@
 	$: types = [...new Set(data.map((d: TFileData) => getFileExtension(d.path)))];
 	$: filteredData = filter(data, $dataLimit, $pathRe, seed);
 
-	let selectedFile: TFileData | undefined = pickRandomElement(data);
+	let selectedFile: TFileData | undefined;
 
 	function getFileExtension(path: string): string {
 		return path.slice(((path.lastIndexOf('.') - 1) >>> 0) + 2);
@@ -71,88 +71,122 @@
 	<title>hello dude/index</title>
 </svelte:head>
 
-<IndexationStatus />
-
-<section class="grid" style="grid-template-columns: {$previewSize}% {100 - $previewSize}%;">
-	<section class="filter">
-		<h1>total files: {data.length}</h1>
-		<input name="re" type="text" bind:value={$pathRe} />
-		<input name="limit" type="number" bind:value={$dataLimit} min="0" max={data.length} />
-		<select on:change={applyPathFilter}>
-			<option value=".*">any</option>
-			{#each types as fileType}
-				<option value="\.{fileType}$">{fileType}</option>
-			{/each}
-		</select>
-		<button on:click={changeShuffleSeed}>shuffle</button>
-
-		<hr />
-		<input type="range" min={10} max={100} bind:value={$previewSize} />
-	</section>
-
-	<section class="viewbox {selectedFile ? 'viewbox-visible' : ''}">
+<section class="content">
+	<!-- <section class="viewbox" class:viewbox--m-visible={selectedFile}>
 		{#if selectedFile}
 			<a href="/files/{encodeURIComponent(selectedFile.path)}">
 				<Media path={selectedFile.path} height="100%" />
 			</a>
 		{/if}
-	</section>
+	</section> -->
 
-	{#if filteredData?.length}
-		<section class="media-list">
-			{#each filteredData as fileData}
-				<span
-					on:mouseenter={(e) => {
-						selectFile(fileData);
-					}}
-					on:mouseleave={clearFile}
-				>
-					{#if fileData?.path}
-						<Media path={fileData.path} width="100%" />
-					{/if}
-				</span>
-			{/each}
+	<section class="grid">
+		<section class="indexation">
+			<IndexationStatus />
 		</section>
-	{/if}
+
+		<section class="filter">
+			<input name="re" type="text" bind:value={$pathRe} />
+			<input name="limit" type="number" bind:value={$dataLimit} min="0" max={data.length} />
+			<select on:change={applyPathFilter}>
+				<option value=".*">any</option>
+				{#each types as fileType}
+					<option value="\.{fileType}$">{fileType}</option>
+				{/each}
+			</select>
+			<button on:click={changeShuffleSeed}>shuffle</button>
+
+			<hr />
+			<input type="range" min={10} max={100} bind:value={$previewSize} />
+		</section>
+
+		{#if filteredData?.length}
+			<section class="media-list">
+				<div class="list list--m-vertical">
+				{#each filteredData as fileData}
+					<!-- <span
+						on:mouseenter={(e) => {
+							// selectFile(fileData);
+						}}
+						on:mouseleave={clearFile}
+					> -->
+						{#if fileData?.path}
+							<Media path={fileData.path} />
+						{/if}
+					<!-- </span> -->
+				{/each}
+				</div>
+			</section>
+		{/if}
+	</section>
 </section>
 
 <style>
-	.grid {
+	.content {
+		display: flex;
+		flex-direction: column;
 		height: 100%;
 		max-height: 100%;
+	}
+
+	.grid {
 		display: grid;
-		grid-auto-columns: 1fr;
-		grid-template-columns: 50% 50%;
-		grid-template-rows: min-content 1fr;
-		gap: 16px 0;
+  		grid-auto-columns: 1fr;
+		grid-template-columns: 0.8fr 1fr;
+  		grid-template-rows: calc(16 * var(--step-size)) 1fr;
+		gap: calc(2 * var(--step-size));
 		grid-template-areas:
-			"filter filter"
-			"list preview";
-			}
+			"indexation filter"
+			"media-list media-list";
+	}
+
 
 	.viewbox {
-		grid-area: preview;
-		/* opacity: 0; */
+		/* grid-area: preview; */
+		opacity: 0;
 		/* transition: opacity 1s linear; */
 		/* box-shadow: 5px 5px 5px -5px rgba(34, 60, 80, 0.6); */
 		overflow: hidden;
 	}
 
-	.viewbox-visible {
-		/* opacity: 0.99; */
+	.viewbox--m-visible {
+		opacity: 0.99;
+	}
+
+	.indexation {
+		grid-area: indexation;
+		border: 1px solid silver;
+		padding: calc(2 * var(--step-size));
 	}
 
 	.filter {
 		grid-area: filter;
-		box-shadow: 5px 5px 5px -5px rgba(34, 60, 80, 0.6);
-		padding: 20px;
+		display: inline-block;
+		border: 1px solid silver;
+		padding: calc(2 * var(--step-size));
 	}
 
 	.media-list {
-		grid-area: list;
-		box-sizing: border-box;
-		padding: 16px;
+		grid-area: media-list;
+		border: 1px solid  silver;
+		padding: calc(2 * var(--step-size));
+	}
+
+	.list {
 		height: 100%;
-		overflow-y: auto;
+		max-height: 100%;
+		display: flex;
+		/* overflow: auto; */
+		gap: var(--step-size);
+		align-items: stretch;
+	}
+
+	.list--m-horizontal {
+		flex-direction: row;
+		/* flex-wrap: wrap; */
+	}
+
+	.list--m-vertical {
+		flex-direction: column;
 	}
 </style>

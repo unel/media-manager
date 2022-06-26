@@ -21,6 +21,10 @@
 		 	? `height: ${height}`
 			 : '';
 
+	$:mediaStyle = width
+		? 'width: 100%'
+		: 'height: 100%';
+
 </script>
 
 <style>
@@ -29,10 +33,11 @@
 	}
 	.media {
 		object-fit: contain;
+		max-height: 100%;
 	}
 </style>
 
-<div style="{style}" class="root">
+<!-- <div style={style} class="root"> -->
 	{#if isVideo}
 		<video  class="media" style={style} controls loop>
 			<source src={url} type="video/{extension}">
@@ -42,5 +47,5 @@
 	{:else}
 		<a href="{url}">{url}</a>
 	{/if}
-</div>
+<!-- </div> -->
 

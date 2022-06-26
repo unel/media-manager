@@ -96,8 +96,6 @@
 
 <style>
 	.root {
-		border: 1px solid silver;
-		padding: 16px;
-		display: inline-block;
+
 	}
 </style>
