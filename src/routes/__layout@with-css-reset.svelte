@@ -43,7 +43,7 @@
 		grid-area: navigation-menu;
 	}
 
-	.content {
+	.layout-content {
 		grid-area: content;
 	}
 </style>
@@ -57,7 +57,7 @@
 
 	</section>
 
-	<section class="content">
+	<section class="layout-content">
 		<slot/>
 	</section>
 </main>

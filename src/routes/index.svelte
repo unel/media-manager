@@ -63,27 +63,31 @@
 </svelte:head>
 
 {#if $contentAwareProceed}
-<section class="content">
+<section class="page-content">
 	<section class="grid">
-		<section class="indexation">
-			<IndexationStatus />
-		</section>
+		<section class="controls">
+			<section class="indexation">
+				<IndexationStatus />
+			</section>
 
-		<section class="filter">
-			<input name="re" type="text" bind:value={$pathRe} />
-			<input name="limit" type="number" bind:value={$dataLimit} min="1" max={data.length} />
-			<select on:change={applyPathFilter} value={$pathRe}>
-				<option value=".*">any</option>
-				{#each types as fileType}
-					<option value="\.{fileType}$">{fileType}</option>
-				{/each}
-			</select>
-			<button on:click={changeShuffleSeed}>shuffle</button>
+			<section class="filter">
+				<input name="re" type="text" bind:value={$pathRe} />
+				<input name="limit" type="number" bind:value={$dataLimit} min="1" max={data.length} />
 
-			<select bind:value={$displayFormat}>
-				<option value="row">in a row</option>
-				<option value="column">in a column</option>
-			</select>
+				<select on:change={applyPathFilter} value={$pathRe}>
+					<option value=".*">any</option>
+					{#each types as fileType}
+						<option value="\.{fileType}$">{fileType}</option>
+					{/each}
+				</select>
+
+				<select bind:value={$displayFormat}>
+					<option value="row">in a row</option>
+					<option value="column">in a column</option>
+				</select>
+
+				<button on:click={changeShuffleSeed}>shuffle</button>
+			</section>
 		</section>
 
 		{#if filteredData?.length}
@@ -108,32 +112,41 @@
 {/if}
 
 <style>
-	.content {
+	.page-content {
 		display: flex;
 		flex-direction: column;
 		height: 100%;
 		max-height: 100%;
+		width: 100%;
 	}
 
 	.grid {
+		height: 100%;
+		width: 100%;
 		display: grid;
   		grid-auto-columns: 1fr;
-		grid-template-columns: 0.8fr 1fr;
+		grid-template-columns: 1fr;
   		grid-template-rows: calc(16 * var(--step-size)) 1fr;
 		gap: calc(2 * var(--step-size));
 		grid-template-areas:
-			"indexation filter"
-			"media-list media-list";
+			"controls"
+			"media-list";
+	}
+
+	.controls {
+		grid-area: controls;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		gap: calc(2 * var(--step-size));
 	}
 
 	.indexation {
-		grid-area: indexation;
 		border: 1px solid silver;
 		padding: calc(2 * var(--step-size));
 	}
 
 	.filter {
-		grid-area: filter;
 		display: inline-block;
 		border: 1px solid silver;
 		padding: calc(2 * var(--step-size));
