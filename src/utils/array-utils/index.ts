@@ -25,3 +25,14 @@ export function shuffle<T = any>(array: T[]): void {
         [array[i], array[j]] = [array[j], array[i]];
     }
 }
+
+export function splitToChunks<T = any>(array: T[], chunkSize: number = 1): Array<Array<T>> {
+    const result: Array<Array<T>> = [];
+    const copy = array.slice();
+
+    while (copy.length) {
+        result.push(copy.splice(0, chunkSize));
+    }
+
+    return result;
+}

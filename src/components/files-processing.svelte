@@ -2,7 +2,7 @@
 	import FileDrop from "filedrop-svelte";
 	import type { Files, FileDropSelectEvent } from "filedrop-svelte";
 
-	import { uploadFiles } from '$utils/file-utils/upload-files';
+	import { uploadFilesWithProgress } from '$utils/file-utils/upload-files';
 </script>
 
 <script lang="ts">
@@ -14,11 +14,14 @@
 		files = e.detail.files;
 		if (!files.accepted.length) return;
 
-		uploadFiles(files.accepted)
-			.then(response => response.json())
-			.then(result => {
-				uploadResult = result;
-			});
+		uploadFilesWithProgress(files.accepted, {
+			chunkSize: 4,
+			onChunkUpload: (chunkUploadResult: any) => {
+				uploadResult = chunkUploadResult;
+			}
+		}).then(chunksUploadResults => {
+			uploadResult = chunksUploadResults;
+		});
 	}
 </script>
 
