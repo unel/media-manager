@@ -83,7 +83,7 @@ export async function getNormalisedFileName(file: File | string): Promise<string
 	const hash = await computeFileHash(file, 'sha-1');
 	const ext = extname(typeof file == 'string' ? file : file.name);
 
-	return `${hash}${ext}`;
+	return { fileName: hash, fileExt: ext };
 }
 
 export async function getMetaPath(file: File | string): Promise<string> {
@@ -91,11 +91,38 @@ export async function getMetaPath(file: File | string): Promise<string> {
 }
 
 export async function getUploadPath(file: File | string): Promise<string> {
-	return resolve(env.UPLOAD_ROOT, await getNormalisedFileName(file));
+	const { fileName, fileExt } = await getNormalisedFileName(file);
+
+	return resolve(env.UPLOAD_ROOT, `${fileName}${fileExt}`);
 }
 
 export async function getStorePath(file: File | string): Promise<string> {
-	return resolve(env.STORE_ROOT, await getNormalisedFileName(file));
+	const dir = env.STORE_ROOT;
+	const { fileName: normalizedFileName, fileExt } = await getNormalisedFileName(file);
+	const { fileName } = ensureNoCollizion(dir, normalizedFileName, fileExt);
+
+	return resolve(dir, `${fileName}${fileExt}`);
+}
+
+function ensureNoCollizion(dir, fileName, fileExt, collisionSuffix = 'collizion-') {
+	const path = resolve(dir, `${fileName}${fileExt}`);
+	if (!isFileExists(path)) {
+		return { dir, fileName, fileExt };
+	}
+
+	let collizionIndex = 0;
+	while (1) {
+		let currentFileName = `${fileName}-${collisionSuffix}-${collizionIndex}`;
+		let newPath = resolve(dir, currentFileName);
+
+		if (!isFileExists(newPath)) {
+			break;
+		}
+
+		collizionIndex += 1;
+	}
+
+	return { dir, fileName: currentFileName, fileExt };
 }
 
 export async function updateMetaForFile(file: File | string, meta: Object) {
