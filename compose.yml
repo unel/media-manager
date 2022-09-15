@@ -1,0 +1,59 @@
+services:
+  svelte:
+    build:
+      context: frontend
+      target: development
+
+    ports:
+      - 3000:3000
+
+    volumes:
+      - storage:/storage
+    depends_on:
+      - mongo
+
+    container_name: mm-svelte
+    restart: always
+    networks:
+      - media-manager
+
+  static:
+    container_name: mm-ng
+    build:
+      context: nginx
+
+    networks:
+      - media-manager
+    ports:
+      - 8080:8080
+    volumes:
+      - storage:/storage
+    depends_on:
+      - svelte
+
+  mongo:
+    container_name: mm-mongo
+    image:  mongo:4.4.8
+    volumes:
+      - mongo-storage:/data/db
+
+    networks:
+      - media-manager
+
+    expose:
+      - 27017
+
+
+networks:
+  media-manager:
+
+volumes:
+  storage:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device:  /run/media/unl/UNL.STORE/
+
+  mongo-storage:
+    driver: local

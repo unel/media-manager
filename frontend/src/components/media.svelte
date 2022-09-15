@@ -7,10 +7,14 @@
 		return path.slice(((path.lastIndexOf('.') - 1) >>> 0) + 2);
 	}
 
+	function getFileName(path: string = ''): string {
+		return path.split('\\').pop()?.split('/')?.pop() ?? '';
+	}
+
 	const videoExtensions = new Set(['mp4', 'webm']);
 	const imageExtensions = new Set(['jpg', 'jpeg', 'gif', 'png', 'webp']);
 
-	$:url = `/files/${encodeURIComponent(path)}`;
+	$:url = `/media/${encodeURIComponent(getFileName(path))}`;
 	$: extension = getFileExtension(path).toLocaleLowerCase();
 	$: isVideo = videoExtensions.has(extension);
 	$: isImage = imageExtensions.has(extension);

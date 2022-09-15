@@ -1,4 +1,4 @@
-import { buildUploadsIndex } from '/utils/file-utils/build-meta-index';
+import { buildUploadsIndex } from '$utils/file-utils/build-meta-index';
 
 export async function post() {
 	buildUploadsIndex();
