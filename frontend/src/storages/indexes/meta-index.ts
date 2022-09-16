@@ -3,6 +3,7 @@ import { resolve as resolvePath } from 'path';
 import env from '$constants/env';
 import { jsonFilesStorage } from '$storages/json-files-storage';
 import { createInmemoryStorage} from '$storages/in-memory';
+import { storage } from '$storages/mongo-storage';
 
 
 export function metaIndex(name = 'meta index') {
@@ -34,11 +35,11 @@ export function metaIndex(name = 'meta index') {
 		},
 
 		getEntries: () => {
-			 return Object.entries(hashByPath.toObject()).map(([path, hash]) => ({
+			return Object.entries(hashByPath.toObject()).map(([path, hash]) => ({
 				path,
 				hash,
 				meta: metaByHash.getItem(hash),
-			 }));
+			}));
 		},
 
 		toObject: () => metaByHash.toObject(),

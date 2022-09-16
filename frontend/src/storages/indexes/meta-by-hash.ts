@@ -3,7 +3,7 @@ import { resolve as resolvePath } from 'path';
 import env from '$constants/env';
 import { jsonFilesStorage } from '$storages/json-files-storage';
 import { createInmemoryStorage} from '$storages/in-memory';
-
+import { storage } from '$storages/mongo-storage';
 
 function createStoreP() {
 	const store =  jsonFilesStorage(resolvePath(env.INDEXES_ROOT, 'meta'), '.meta.json');

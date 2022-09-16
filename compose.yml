@@ -8,7 +8,9 @@ services:
       - 3000:3000
 
     volumes:
+      - ./frontend:/usr/src/app
       - storage:/storage
+
     depends_on:
       - mongo
 
