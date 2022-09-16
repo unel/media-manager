@@ -1,9 +1,8 @@
 import type { TWalkItemsCb } from "./types";
 import { getWalkEntry } from "./get-walk-entry";
-import { walkItemsByEntries } from "./walk-items-by-entries";
+import { walkPathsRecursive } from "./walk-paths-recursive";
 
 
 export async function walkDirItems(dir: string, cb: TWalkItemsCb): void {
-	const startItems = await getWalkEntry(dir);
-	walkItemsByEntries(startItems, cb);
+	walkPathsRecursive([dir], cb);
 }

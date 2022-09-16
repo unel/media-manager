@@ -6,7 +6,7 @@ import { delay } from '$utils/time-utils';
 import { computeFileHash } from './compute-file-hash';
 import { getFileMeta } from './index';
 import { computeWalkDirItemsQueueSize } from "./compute-walk-dir-items-queue-size";
-import { walkItemsByEntries } from "./walk-items-by-entries";
+import { walkPathsRecursive } from "./walk-paths-recursive";
 import { walkDirItems } from "./walk-dir-Items";
 
 
@@ -58,7 +58,7 @@ export async function buildIndexes(rootDir, statusStorage) {
 
 	const queue = undefined; //indexationQueue.getValue()
 	if (queue) {
-		walkItemsByEntries(queue, walkIndexCb);
+		walkPathsRecursive(queue, walkIndexCb);
 	} else {
 		walkDirItems(rootDir, walkIndexCb);
 	}
