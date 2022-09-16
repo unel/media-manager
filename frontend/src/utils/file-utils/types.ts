@@ -2,7 +2,7 @@ import { readdir } from 'fs/promises';
 
 type ArrayElementType<ArrayType extends Array> = ArrayType[number];
 type TReaddirResult = ReturnType<typeof readdir>;
-type TWalkItems = Awaited<TReaddirResult>;
+export type TWalkItems = Awaited<TReaddirResult>;
 type TWalkItem = ArrayElementType<TWalkItems>;
 export type TWalkEntry = {
 	path: string;

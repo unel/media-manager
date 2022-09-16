@@ -4,6 +4,6 @@ import { walkItemsByEntries } from "./walk-items-by-entries";
 
 
 export async function walkDirItems(dir: string, cb: TWalkItemsCb): void {
-	const rootEntry = await getWalkEntry(dir);
-	walkItemsByEntries([rootEntry], cb);
+	const startItems = await getWalkEntry(dir);
+	walkItemsByEntries(startItems, cb);
 }
