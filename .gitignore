@@ -1,8 +1,8 @@
 .DS_Store
-/frontend/node_modules
+**/node_modules
 /frontend/build
 /frontend/.svelte-kit
 /package
-/frontend/.env
-/frontend/.env.*
-/frontend/.env.example
+**/.env
+**/.env.*
+**/.env.example
